@@ -54,9 +54,14 @@ def format(recipe, file_loc:str):
 
     data = pd.concat([data, note_], axis=1)
     data = data[['start_time', 'endtime', 'Hz']]
-    data = data.round(2).applymap(lambda x: "{:.{}f}".format(x, 2))
+    # data = data[['start_time', 'endtime', 'Hz', 'velocity']]
+    data = data.round(2).astype('float')
+    for index, row in data.iterrows():
+        if(row['start_time'] == row['endtime']):
+            data.drop(index, inplace=True)
+            
     file_loc = os.path.join('/', *file_loc.split('/')[:-1], file_loc.split('/')[-1][:-4]+'.csv')
-    data.to_csv(file_loc, index=False, header=False, sep=' ')
+    data.to_csv(file_loc, index=False, header=False, sep=',')
 
 def main(recipe:str, TOTAL_TRACK:int, RefOrTrans:str):
     with open(os.path.join(os.getcwd(), 'recipes', recipe+'.yaml')) as stream:

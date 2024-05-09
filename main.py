@@ -92,4 +92,5 @@ logging.info('Midi2ref complete')
 
 
 # EVALUATION
-# evaluate.main(args.recipe, TOTAL_TRACK, file_name)
+evaluate.main(args.recipe, TOTAL_TRACK, file_name)
+logging.info('Evaluation complete')
