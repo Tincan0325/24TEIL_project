@@ -89,12 +89,7 @@ m2r(recipe=recipe, TOTAL_TRACK=TOTAL_TRACK, RefOrTrans='ref')
 m2r(recipe=recipe, TOTAL_TRACK=TOTAL_TRACK, RefOrTrans='trans')
 logging.info('Midi2ref complete')
 
-# delete the first row of the csv file
-for tr in range(1, TOTAL_TRACK+1):
-    file_loc = os.path.join(os.getcwd(), 'transcribe', f'Track{tr:05}', recipe, file_name+'_basic_pitch.csv')
-    data = pd.read_csv(file_loc)
-    #data = data.drop(data.index[1])
-    data.to_csv(file_loc, index=False)
+
 
 # EVALUATION
 # evaluate.main(args.recipe, TOTAL_TRACK, file_name)
