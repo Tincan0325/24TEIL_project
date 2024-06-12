@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/tincan/code/cpp/include/midi.hpp
+fstream
+-
+iostream
+-
+array
+-
+vector
+-
+
+/home/tincan/code/cpp/main.cpp
+include/midi.hpp
+/home/tincan/code/cpp/include/midi.hpp
+

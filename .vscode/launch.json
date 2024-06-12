@@ -1,0 +1,16 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "args": ["--config=ddsp_piano/configs/dafx22.gin", "--ckpt=ddsp-piano/ddsp_piano/model_weights/dafx22","./babyslakh_16k/Track00005/piano/piano.mid", "/mix.wav"],
+            "console": "integratedTerminal"
+        }
+    ]
+}

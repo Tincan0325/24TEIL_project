@@ -1,0 +1,8 @@
+/home/tincan/code/cpp/build/CMakeFiles/rebuild_cache.dir
+/home/tincan/code/cpp/build/CMakeFiles/edit_cache.dir
+/home/tincan/code/cpp/build/CMakeFiles/MIDI.dir
+/home/tincan/code/cpp/build/include/CMakeFiles/rebuild_cache.dir
+/home/tincan/code/cpp/build/include/CMakeFiles/edit_cache.dir
+/home/tincan/code/cpp/build/src/CMakeFiles/rebuild_cache.dir
+/home/tincan/code/cpp/build/src/CMakeFiles/edit_cache.dir
+/home/tincan/code/cpp/build/src/CMakeFiles/readmidi.dir

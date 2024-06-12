@@ -8,7 +8,7 @@ import pandas as pd
 from midi2ref import main as m2r
 from slakh_utils.submixes import submixes 
 
-TOTAL_TRACK = 1
+TOTAL_TRACK = 5
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -35,14 +35,14 @@ if args.submix is True:
     log.info(f'Submixing recipe {args.recipe}')
     file_loc = os.path.join(os.getcwd(), 'babyslakh_16k')
 
-    args = argparse.Namespace(
+    args_ = argparse.Namespace(
         submix_definition_file=recipe_loc, 
         input_dir=file_loc,
         src_dir=None,
         num_threads=1,
         root_dir=file_loc)
 
-    submixes.main(args)
+    submixes.main(args_)
 
 # PREDICTION
 from basic_pitch.inference import predict_and_save
@@ -88,8 +88,6 @@ if args.predict is not False:
 m2r(recipe=recipe, TOTAL_TRACK=TOTAL_TRACK, RefOrTrans='ref')
 m2r(recipe=recipe, TOTAL_TRACK=TOTAL_TRACK, RefOrTrans='trans')
 logging.info('Midi2ref complete')
-
-
 
 # EVALUATION
 evaluate.main(args.recipe, TOTAL_TRACK, file_name)

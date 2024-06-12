@@ -1,0 +1,2 @@
+/home/tincan/miniconda3/envs/AMT/bin/x86_64-conda-linux-gnu-ar qc libreadmidi.a CMakeFiles/readmidi.dir/midi.cpp.o
+/home/tincan/miniconda3/envs/AMT/bin/x86_64-conda-linux-gnu-ranlib libreadmidi.a

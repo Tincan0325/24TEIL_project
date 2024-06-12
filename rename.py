@@ -1,4 +1,5 @@
 import os
+from scipy.io import wavfile
 
 if __name__=='__main__':
     file_loc = os.path.join(os.getcwd(), 'babyslakh_16k')
@@ -10,6 +11,5 @@ if __name__=='__main__':
             if f.startswith('._'): 
                 src = os.path.join(stems, f)
                 f = f[2:]  
-                des = os.path.join(stems, f)
-                print(src, des)
-                #os.rename(src, des)
+                dst = os.path.join(stems, f)
+                os.remove(src)
