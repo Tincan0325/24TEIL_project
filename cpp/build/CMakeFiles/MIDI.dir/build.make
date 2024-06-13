@@ -79,15 +79,15 @@ include CMakeFiles/MIDI.dir/flags.make
 CMakeFiles/MIDI.dir/main.cpp.o: CMakeFiles/MIDI.dir/flags.make
 CMakeFiles/MIDI.dir/main.cpp.o: ../main.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/tincan/code/cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/MIDI.dir/main.cpp.o"
-	/home/tincan/miniconda3/envs/AMT/bin/x86_64-conda-linux-gnu-c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/MIDI.dir/main.cpp.o -c /home/tincan/code/cpp/main.cpp
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/MIDI.dir/main.cpp.o -c /home/tincan/code/cpp/main.cpp
 
 CMakeFiles/MIDI.dir/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MIDI.dir/main.cpp.i"
-	/home/tincan/miniconda3/envs/AMT/bin/x86_64-conda-linux-gnu-c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/tincan/code/cpp/main.cpp > CMakeFiles/MIDI.dir/main.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/tincan/code/cpp/main.cpp > CMakeFiles/MIDI.dir/main.cpp.i
 
 CMakeFiles/MIDI.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MIDI.dir/main.cpp.s"
-	/home/tincan/miniconda3/envs/AMT/bin/x86_64-conda-linux-gnu-c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/tincan/code/cpp/main.cpp -o CMakeFiles/MIDI.dir/main.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/tincan/code/cpp/main.cpp -o CMakeFiles/MIDI.dir/main.cpp.s
 
 # Object files for target MIDI
 MIDI_OBJECTS = \

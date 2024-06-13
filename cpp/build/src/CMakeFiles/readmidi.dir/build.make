@@ -79,15 +79,15 @@ include src/CMakeFiles/readmidi.dir/flags.make
 src/CMakeFiles/readmidi.dir/midi.cpp.o: src/CMakeFiles/readmidi.dir/flags.make
 src/CMakeFiles/readmidi.dir/midi.cpp.o: ../src/midi.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/tincan/code/cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object src/CMakeFiles/readmidi.dir/midi.cpp.o"
-	cd /home/tincan/code/cpp/build/src && /home/tincan/miniconda3/envs/AMT/bin/x86_64-conda-linux-gnu-c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/readmidi.dir/midi.cpp.o -c /home/tincan/code/cpp/src/midi.cpp
+	cd /home/tincan/code/cpp/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/readmidi.dir/midi.cpp.o -c /home/tincan/code/cpp/src/midi.cpp
 
 src/CMakeFiles/readmidi.dir/midi.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/readmidi.dir/midi.cpp.i"
-	cd /home/tincan/code/cpp/build/src && /home/tincan/miniconda3/envs/AMT/bin/x86_64-conda-linux-gnu-c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/tincan/code/cpp/src/midi.cpp > CMakeFiles/readmidi.dir/midi.cpp.i
+	cd /home/tincan/code/cpp/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/tincan/code/cpp/src/midi.cpp > CMakeFiles/readmidi.dir/midi.cpp.i
 
 src/CMakeFiles/readmidi.dir/midi.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/readmidi.dir/midi.cpp.s"
-	cd /home/tincan/code/cpp/build/src && /home/tincan/miniconda3/envs/AMT/bin/x86_64-conda-linux-gnu-c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/tincan/code/cpp/src/midi.cpp -o CMakeFiles/readmidi.dir/midi.cpp.s
+	cd /home/tincan/code/cpp/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/tincan/code/cpp/src/midi.cpp -o CMakeFiles/readmidi.dir/midi.cpp.s
 
 # Object files for target readmidi
 readmidi_OBJECTS = \

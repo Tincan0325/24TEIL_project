@@ -15,6 +15,20 @@ array
 -
 vector
 -
+list
+-
+utility
+-
+string
+-
+algorithm
+-
+sstream
+-
+iomanip
+-
+cstdint
+-
 
 /home/tincan/code/cpp/src/midi.cpp
 midi.hpp
