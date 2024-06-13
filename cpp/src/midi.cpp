@@ -20,7 +20,7 @@ MIDI::~MIDI(){
 }
 
 void MIDI::ParseFile(){
-    std::cout << "Parsing file." << std::endl;
+    // std::cout << "Parsing file." << std::endl;
     uint16_t n16;
     uint32_t n32;
 
@@ -75,7 +75,7 @@ void MIDI::ParseFile(){
     uint16_t nDivision = Swap16(n16);   
 
     for (uint16_t nChunk = 0; nChunk < nTrackChunks; nChunk++){			
-        std::cout << "===== NEW TRACK" << std::endl;
+        // std::cout << "===== NEW TRACK" << std::endl;
         // Read Track Header
         midi.read((char*)&n32, sizeof(uint32_t));
         uint32_t nTrackID = Swap32(n32);
@@ -183,33 +183,33 @@ void MIDI::ParseFile(){
                     switch (nType)
                     {
                     case MetaSequence:
-                        std::cout << "Sequence Number: " << midi.get() << midi.get() << std::endl;
+                        // std::cout << "Sequence Number: " << midi.get() << midi.get() << std::endl;
                         break;
                     case MetaText:
-                        std::cout << "Text: " << ReadString(nLength) << std::endl;
+                        // std::cout << "Text: " << ReadString(nLength) << std::endl;
                         break;
                     case MetaCopyright:
-                        std::cout << "Copyright: " << ReadString(nLength) << std::endl;
+                        // std::cout << "Copyright: " << ReadString(nLength) << std::endl;
                         break;
                     case MetaTrackName:
                         vecTracks[nChunk].sName = ReadString(nLength);
-                        std::cout << "Track Name: " << vecTracks[nChunk].sName << std::endl;							
+                        // std::cout << "Track Name: " << vecTracks[nChunk].sName << std::endl;							
                         break;
                     case MetaInstrumentName:
                         vecTracks[nChunk].sInstrument = ReadString(nLength);
-                        std::cout << "Instrument Name: " << vecTracks[nChunk].sInstrument << std::endl;
+                        // std::cout << "Instrument Name: " << vecTracks[nChunk].sInstrument << std::endl;
                         break;
                     case MetaLyrics:
-                        std::cout << "Lyrics: " << ReadString(nLength) << std::endl;
+                        // std::cout << "Lyrics: " << ReadString(nLength) << std::endl;
                         break;
                     case MetaMarker:
-                        std::cout << "Marker: " << ReadString(nLength) << std::endl;
+                        // std::cout << "Marker: " << ReadString(nLength) << std::endl;
                         break;
                     case MetaCuePoint:
-                        std::cout << "Cue: " << ReadString(nLength) << std::endl;
+                        // std::cout << "Cue: " << ReadString(nLength) << std::endl;
                         break;
                     case MetaChannelPrefix:
-                        std::cout << "Prefix: " << midi.get() << std::endl;
+                        // std::cout << "Prefix: " << midi.get() << std::endl;
                         break;
                     case MetaEndOfTrack:
                         EndOfTrack = true;
@@ -222,43 +222,43 @@ void MIDI::ParseFile(){
                             (m_nTempo |= (midi.get() << 8));
                             (m_nTempo |= (midi.get() << 0));
                             m_nBPM = (60000000 / m_nTempo);
-                            std::cout << "Tempo: " << m_nTempo << " (" << m_nBPM << "bpm)" << std::endl;
+                            // std::cout << "Tempo: " << m_nTempo << " (" << m_nBPM << "bpm)" << std::endl;
                         }
                         break;
                     case MetaSMPTEOffset:
-                        std::cout << "SMPTE: H:" << midi.get() << " M:" << midi.get() << " S:" << midi.get() << " FR:" << midi.get() << " FF:" << midi.get() << std::endl;
+                        // std::cout << "SMPTE: H:" << midi.get() << " M:" << midi.get() << " S:" << midi.get() << " FR:" << midi.get() << " FF:" << midi.get() << std::endl;
                         break;
                     case MetaTimeSignature:
-                        std::cout << "Time Signature: " << midi.get() << "/" << (2 << midi.get()) << std::endl;
-                        std::cout << "ClocksPerTick: " << midi.get() << std::endl;
+                        // std::cout << "Time Signature: " << midi.get() << "/" << (2 << midi.get()) << std::endl;
+                        // std::cout << "ClocksPerTick: " << midi.get() << std::endl;
 
                         // A MIDI "Beat" is 24 ticks, so specify how many 32nd notes constitute a beat
-                        std::cout << "32per24Clocks: " << midi.get() << std::endl;
+                        // std::cout << "32per24Clocks: " << midi.get() << std::endl;
                         break;
                     case MetaKeySignature:
-                        std::cout << "Key Signature: " << midi.get() << std::endl;
-                        std::cout << "Minor Key: " << midi.get() << std::endl;
+                        // std::cout << "Key Signature: " << midi.get() << std::endl;
+                        // std::cout << "Minor Key: " << midi.get() << std::endl;
                         break;
                     case MetaSequencerSpecific:
-                        std::cout << "Sequencer Specific: " << ReadString(nLength) << std::endl;
+                        // std::cout << "Sequencer Specific: " << ReadString(nLength) << std::endl;
                         break;
-                    default:
-                        std::cout << "Unrecognised MetaEvent: " << nType << std::endl;
+                    // default:
+                        //std::cout << "Unrecognised MetaEvent: " << nType << std::endl;
                     }
                 }
 
                 if (nStatus == 0xF0){
                     // System Exclusive Message Begin
-                    std::cout << "System Exclusive Begin: " << ReadString(ReadValue())  << std::endl;
+                    // std::cout << "System Exclusive Begin: " << ReadString(ReadValue())  << std::endl;
                 }
 
                 if (nStatus == 0xF7){
                     // System Exclusive Message Begin
-                    std::cout << "System Exclusive End: " << ReadString(ReadValue()) << std::endl;
+                    // std::cout << "System Exclusive End: " << ReadString(ReadValue()) << std::endl;
                 }
             }			
             else{
-                std::cout << "Unrecognised Status Byte: " << nStatus << std::endl;
+                // std::cout << "Unrecognised Status Byte: " << nStatus << std::endl;
             }
         }
     }
@@ -508,6 +508,8 @@ bool operator==(const MidiEvent e1, const MidiEvent e2){
 HillClimb::HillClimb(){}
 
 void HillClimb::read(const std::string &file_name){
+    if (file != nullptr)
+        delete file; 
     file = new MIDI(file_name);
     //file->showAllEvent();
 }
@@ -536,16 +538,17 @@ void HillClimb::evaluate(const std::string file_name){
 
 void HillClimb::runPercentage(const std::string file_name){
     read(file_name);
-
+    float bestF1 = 0.0;
     file->ConvertEventNote();
     file->showAllNote();
     for (size_t t=0; t<file->vecTracks.size(); t++){
-        printf("t: %d\n", t);
+        // printf("t: %d\n", t);
+        std::ifstream score("../../scores.txt", std::ifstream::binary);
+        //float bestF1 = 
         for (size_t n=0; n<file->vecTracks[t].vecNotes.size(); n++){
             // shift foward
-            std::string shift_forward_file = HOME+"midi/percentage/shift_forward_"\
-            +std::to_string(int(HillClimb::PERCENTAGE*100))+"_"+std::to_string(t)+"_"
-            +std::to_string(n)+".mid";
+            std::string _file_name = "shift_forward_"+std::to_string(int(HillClimb::PERCENTAGE*100))+"_"+std::to_string(t)+"_"+std::to_string(n);
+            std::string shift_forward_file = HOME+"midi/percentage/" + _file_name+".mid";
             // printf("shift_forward_file: %s\n", shift_forward_file.c_str());
             read(file_name);
             file->ConvertEventNote();
@@ -555,9 +558,16 @@ void HillClimb::runPercentage(const std::string file_name){
             file->EventToMeg();
             //printf("msg1 %s, msg2 %s\n",  file->msgs[0].c_str(), file->msgs[1].c_str());
             file->write(shift_forward_file, file->msgs[0], file->msgs[1]);
+            evaluate(_file_name);
 
-       
-
+            std::ifstream score("../../score.txt") ;
+            float F1_measure;
+            score >> F1_measure;
+            if(F1_measure>bestF1){
+                std::cout << "GetBetter, Climb UP!" << std::endl;
+                read(shift_forward_file); // read shift file back
+            }
+           
         }
     }
 }

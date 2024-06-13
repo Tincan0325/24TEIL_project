@@ -3,6 +3,16 @@
 
 src/CMakeFiles/readmidi.dir/midi.cpp.o: ../include/midi.hpp
 src/CMakeFiles/readmidi.dir/midi.cpp.o: ../src/midi.cpp
+src/CMakeFiles/readmidi.dir/midi.cpp.o: /usr/include/jsoncpp/json/allocator.h
+src/CMakeFiles/readmidi.dir/midi.cpp.o: /usr/include/jsoncpp/json/autolink.h
+src/CMakeFiles/readmidi.dir/midi.cpp.o: /usr/include/jsoncpp/json/config.h
+src/CMakeFiles/readmidi.dir/midi.cpp.o: /usr/include/jsoncpp/json/features.h
+src/CMakeFiles/readmidi.dir/midi.cpp.o: /usr/include/jsoncpp/json/forwards.h
+src/CMakeFiles/readmidi.dir/midi.cpp.o: /usr/include/jsoncpp/json/json.h
+src/CMakeFiles/readmidi.dir/midi.cpp.o: /usr/include/jsoncpp/json/reader.h
+src/CMakeFiles/readmidi.dir/midi.cpp.o: /usr/include/jsoncpp/json/value.h
+src/CMakeFiles/readmidi.dir/midi.cpp.o: /usr/include/jsoncpp/json/version.h
+src/CMakeFiles/readmidi.dir/midi.cpp.o: /usr/include/jsoncpp/json/writer.h
 src/CMakeFiles/readmidi.dir/midi.cpp.o: /usr/include/python3.8/Python.h
 src/CMakeFiles/readmidi.dir/midi.cpp.o: /usr/include/python3.8/abstract.h
 src/CMakeFiles/readmidi.dir/midi.cpp.o: /usr/include/python3.8/bltinmodule.h

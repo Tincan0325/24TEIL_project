@@ -11,6 +11,8 @@
 #include <iomanip>
 #include <cstdint>
 #include </usr/include/python3.8/Python.h>
+#include </usr/include/jsoncpp/json/json.h>
+#include </usr/include/jsoncpp/json/value.h>
 
 static const std::string HOME="/home/tincan/code/";
 static const std::string TRANSCRIBE_NAME="piano_transcribe";

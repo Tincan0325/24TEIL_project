@@ -3,6 +3,16 @@
 
 CMakeFiles/MIDI.dir/main.cpp.o: ../include/midi.hpp
 CMakeFiles/MIDI.dir/main.cpp.o: ../main.cpp
+CMakeFiles/MIDI.dir/main.cpp.o: /usr/include/jsoncpp/json/allocator.h
+CMakeFiles/MIDI.dir/main.cpp.o: /usr/include/jsoncpp/json/autolink.h
+CMakeFiles/MIDI.dir/main.cpp.o: /usr/include/jsoncpp/json/config.h
+CMakeFiles/MIDI.dir/main.cpp.o: /usr/include/jsoncpp/json/features.h
+CMakeFiles/MIDI.dir/main.cpp.o: /usr/include/jsoncpp/json/forwards.h
+CMakeFiles/MIDI.dir/main.cpp.o: /usr/include/jsoncpp/json/json.h
+CMakeFiles/MIDI.dir/main.cpp.o: /usr/include/jsoncpp/json/reader.h
+CMakeFiles/MIDI.dir/main.cpp.o: /usr/include/jsoncpp/json/value.h
+CMakeFiles/MIDI.dir/main.cpp.o: /usr/include/jsoncpp/json/version.h
+CMakeFiles/MIDI.dir/main.cpp.o: /usr/include/jsoncpp/json/writer.h
 CMakeFiles/MIDI.dir/main.cpp.o: /usr/include/python3.8/Python.h
 CMakeFiles/MIDI.dir/main.cpp.o: /usr/include/python3.8/abstract.h
 CMakeFiles/MIDI.dir/main.cpp.o: /usr/include/python3.8/bltinmodule.h

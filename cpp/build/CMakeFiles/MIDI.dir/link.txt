@@ -1,1 +1,1 @@
-/usr/bin/c++ -g CMakeFiles/MIDI.dir/main.cpp.o -o MIDI  src/libreadmidi.a /usr/lib/x86_64-linux-gnu/libpython3.8.so 
+/usr/bin/c++ -g CMakeFiles/MIDI.dir/main.cpp.o -o MIDI  src/libreadmidi.a 
