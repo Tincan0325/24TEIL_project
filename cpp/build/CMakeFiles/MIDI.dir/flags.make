@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/tincan/code/cpp/src/../include
+CXX_INCLUDES = -I/usr/include/python3.8 -I/home/tincan/code/cpp/src/../include
 
-CXX_FLAGS = -g -g -std=gnu++11
+CXX_FLAGS = -g -g -I/usr/include/python3.8/cpython -I/usr/include/python3.8/ -std=gnu++11
 

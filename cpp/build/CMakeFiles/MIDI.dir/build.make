@@ -99,6 +99,7 @@ MIDI_EXTERNAL_OBJECTS =
 MIDI: CMakeFiles/MIDI.dir/main.cpp.o
 MIDI: CMakeFiles/MIDI.dir/build.make
 MIDI: src/libreadmidi.a
+MIDI: /usr/lib/x86_64-linux-gnu/libpython3.8.so
 MIDI: CMakeFiles/MIDI.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/tincan/code/cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable MIDI"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/MIDI.dir/link.txt --verbose=$(VERBOSE)

@@ -365,4 +365,14 @@ CMAKE_STRIP-ADVANCED:INTERNAL=1
 CMAKE_UNAME:INTERNAL=/usr/bin/uname
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
+//Details about finding Python3
+FIND_PACKAGE_MESSAGE_DETAILS_Python3:INTERNAL=[/usr/include/python3.8][/usr/lib/x86_64-linux-gnu/libpython3.8.so][cfound components: Development Development.Module Development.Embed ][v3.8.10()]
+//Path to a program.
+_Python3_CONFIG:INTERNAL=/usr/bin/x86_64-linux-gnu-python3.8-config
+_Python3_DEVELOPMENT_EMBED_SIGNATURE:INTERNAL=b963e18a050af2a6ecd4df646a3aa96e
+_Python3_DEVELOPMENT_MODULE_SIGNATURE:INTERNAL=d6f41d1fc58e160d69c104f5d4cfd626
+//Path to a file.
+_Python3_INCLUDE_DIR:INTERNAL=/usr/include/python3.8
+//Path to a library.
+_Python3_LIBRARY_RELEASE:INTERNAL=/usr/lib/x86_64-linux-gnu/libpython3.8.so
 

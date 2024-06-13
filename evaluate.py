@@ -5,8 +5,8 @@ import midi2ref
 
 # Argument: 1. recipe
 def main(recipe, file_name):
-    ref_loc = os.path.join(os.getcwd(), 'midi', 'csv', recipe+'.csv')
-    file_loc = os.path.join(os.getcwd(), 'midi', 'csv', file_name+'.csv')
+    ref_loc = os.path.join(os.getcwd(), '..', '..', 'midi', 'csv', recipe+'.csv')
+    file_loc = file_name
     ref_intervals, ref_pitches = mir_eval.io.load_valued_intervals(ref_loc, delimiter=',')
     est_intervals, est_pitches = mir_eval.io.load_valued_intervals(file_loc, delimiter=',')
     # scores = mir_eval.transcription.evaluate(ref_intervals=ref_intervals, 
@@ -25,6 +25,5 @@ def main(recipe, file_name):
     print(scores)
 
 if __name__ == '__main__':
-    recipe = sys.argv[1]
-    file_name = sys.argv[2]
+    file_name = sys.argv[1]
     main('piano', file_name)

@@ -309,6 +309,7 @@ void MIDI::ConvertEventNote(){
     for (auto& track: vecTracks){
         track.vecNotes.clear();
         tmp.clear();
+        total_tick = 0;
         for (auto& event: track.vecEvents){
             total_tick += event.nDeltaTick;
             if (event.event==MidiEvent::Type::NoteOn)
@@ -391,24 +392,27 @@ std::vector<unsigned char> hexStringToBytes(const std::string& hex) {
     return bytes;
 }
 
-void MIDI::write(const std::string& file, std::string& hexString1, std::string& hexString2){
+void MIDI::write(const std::string& file, std::string hexString1, std::string hexString2){
 
     std::string header = "4D 54 68 64 00 00 00 06 00 01 00 02 00 60";
+    std::string foot = "00";
     std::string end = "00 FF 2F 00";
     std::string hexString;
     std::string track = "4D 54 72 6B";
 
     std::stringstream len1;
+    hexString1.erase(remove_if(hexString1.begin(), hexString1.end(), isspace), hexString1.end());
     len1 << std::hex << std::setw(8) << std::setfill('0') << static_cast<int>((hexString1.size()/2+4));
     hexString1 = track+len1.str()+hexString1+end;
 
-    std::stringstream len2;
+    std::stringstream len2;    
+    hexString2.erase(remove_if(hexString2.begin(), hexString2.end(), isspace), hexString2.end());
     len2 << std::hex << std::setw(8) << std::setfill('0') << static_cast<int>((hexString2.size()/2+4));
     hexString2 = track+len2.str()+hexString2+end;
- 
-    hexString = hexString1+hexString2;
-    hexString.erase(remove_if(hexString.begin(), hexString.end(), isspace), hexString.end());
 
+    hexString = header+hexString1+hexString2;
+    hexString.erase(remove_if(hexString.begin(), hexString.end(), isspace), hexString.end());
+    // std::cout << hexString << std::endl;
     std::vector<unsigned char> binaryData;
     binaryData = hexStringToBytes(hexString);
     
@@ -459,6 +463,7 @@ std::string MIDI::EventHex(const MidiEvent& event){
         std::string key = int8ToHex(event.nKey);
         std::string velocity = int8ToHex(event.nVelocity);
         std::string msg = time+"90"+key+velocity;
+        // printf("msg: %s\n", msg.c_str());
         return msg;
     }
     else if(event.event == MidiEvent::Type::NoteOff){
@@ -473,18 +478,25 @@ std::string MIDI::EventHex(const MidiEvent& event){
 void MIDI::EventToMeg(){
     std::string s="";
     for (auto &track: vecTracks){
+        s="";
         for (auto &event: track.vecEvents){
             s += EventHex(event);
         }
+        // printf("s %x\n", s);
         msgs.push_back(s);
     }
 }
 
-void MIDI::shiftByPercentage(float p, size_t index){
-    //printf("track%d\n", vecTracks.size());
-    //printf("index%d\n",vecTracks[0].vecEvents[index].nKey);
+void MIDI::shiftByPercentage(float p, size_t track, size_t index){
+    std::vector<MidiNote>& m = vecTracks[track].vecNotes;
+    int shift = int(m[index].nStartTime) + int(m[index].nDuration * p);
+    m[index].nStartTime = (shift>=0)?(uint32_t)((m[index].nStartTime) + int(m[index].nDuration * p)):0;
+    
+    sort(m.begin(), m.end(), [](const MidiNote& a, const MidiNote& b) { 
+        return int(a.nStartTime) < int(b.nStartTime); 
+    }); 
+    ConvertNoteEvent();
 }
-
 
 bool operator==(const MidiEvent e1, const MidiEvent e2){
     if (e1.event==e2.event && e1.nKey==e2.nKey && e1.nDeltaTick==e1.nDeltaTick)
@@ -497,4 +509,59 @@ HillClimb::HillClimb(){}
 
 void HillClimb::read(const std::string &file_name){
     file = new MIDI(file_name);
+    //file->showAllEvent();
 }
+
+void HillClimb::shift(float p, size_t track , size_t note){
+    file->shiftByPercentage(p, track, note);
+}
+
+void HillClimb::evaluate(const std::string file_name){
+    // transfer mid to ref
+    std::string cmd = "python3 ";
+    cmd += HOME;
+    cmd += "midi2ref.py ";
+    cmd += HOME+"midi/percentage/"+file_name+".mid";
+    //cmd += HOME+"midi/"+file_name+".mid";
+    system(cmd.c_str());
+    
+    // evaluate
+    cmd = "python3 ";
+    cmd += HOME;
+    cmd += "evaluate.py ";
+    cmd += HOME+"midi/csv/"+file_name+".csv";
+    system(cmd.c_str());
+
+}
+
+void HillClimb::runPercentage(const std::string file_name){
+    read(file_name);
+
+    file->ConvertEventNote();
+    file->showAllNote();
+    for (size_t t=0; t<file->vecTracks.size(); t++){
+        printf("t: %d\n", t);
+        for (size_t n=0; n<file->vecTracks[t].vecNotes.size(); n++){
+            // shift foward
+            std::string shift_forward_file = HOME+"midi/percentage/shift_forward_"\
+            +std::to_string(int(HillClimb::PERCENTAGE*100))+"_"+std::to_string(t)+"_"
+            +std::to_string(n)+".mid";
+            // printf("shift_forward_file: %s\n", shift_forward_file.c_str());
+            read(file_name);
+            file->ConvertEventNote();
+            //file->showAllNote();
+            shift(-HillClimb::PERCENTAGE, t, n);
+            //file->showAllEvent();
+            file->EventToMeg();
+            //printf("msg1 %s, msg2 %s\n",  file->msgs[0].c_str(), file->msgs[1].c_str());
+            file->write(shift_forward_file, file->msgs[0], file->msgs[1]);
+
+       
+
+        }
+    }
+}
+
+const float HillClimb::PERCENTAGE=0.05;
+
+

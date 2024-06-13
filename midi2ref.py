@@ -8,7 +8,7 @@ import shutil
 
 
 def midi2ref(path, o_dir):
-    cmd = f"python3 midi_csv/midi_to_csv.py -u {path} -o {o_dir}"
+    cmd = f"python3 /home/tincan/code/midi_csv/midi_to_csv.py -u {path} -o {o_dir}"
     #print(cmd)
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     #print(result.stdout)
@@ -67,7 +67,7 @@ def format(recipe, file_loc):
     data.to_csv(file_loc, index=False, header=False, sep=',')
 
 def main(file_name: str):
-    o_dir = os.path.join(*file_name.split('/')[:-1], 'csv')
+    o_dir = os.path.join('home', 'tincan', 'code', 'midi', 'csv')
     midi2ref(file_name, o_dir)
     format('piano', os.path.join(o_dir, file_name.split('/')[-1][:-4]+'.csv'))
     # with open(os.path.join(os.getcwd(), 'recipes', recipe+'.yaml')) as stream:

@@ -10,6 +10,10 @@
 #include <sstream>
 #include <iomanip>
 #include <cstdint>
+#include </usr/include/python3.8/Python.h>
+
+static const std::string HOME="/home/tincan/code/";
+static const std::string TRANSCRIBE_NAME="piano_transcribe";
 
 class HillClimb;
 
@@ -93,10 +97,10 @@ public:
 	const void showAllNote(); 
 	void ConvertEventNote();
 	void ConvertNoteEvent();
-	void write(const std::string& file, std::string& hexString, std::string& hexString2);
+	void write(const std::string& file, std::string hexString, std::string hexString2);
 	std::string EventHex(const MidiEvent& event);
 	void EventToMeg();
-	void shiftByPercentage(float p, size_t index);
+	void shiftByPercentage(float p, size_t track, size_t index);
 	std::vector<std::string> msgs;
 
 protected:
@@ -110,7 +114,12 @@ class HillClimb{
 public:
     HillClimb();
     void read(const std::string &file_name);
+	void runPercentage(const std::string file_name);
+	static const float PERCENTAGE;
+	void evaluate(const std::string file_name);
+
 protected:
     MIDI* file;
+	void shift(float p, size_t track , size_t note);
 };
 
