@@ -35,8 +35,8 @@ def note2Hz(note: str):
     Hz = 440.0*2**(octave-4)*Base**scale
     return Hz
     
-def format(recipe, file_loc:str):
-    data = pd.read_csv(file_loc)
+def format(recipe, file_loc):
+    data = pd.read_csv(os.path.join(*file_loc.split('/')))
     note = data.iloc[:, 1].to_frame()
     note_ = pd.DataFrame(columns=['Hz'])
     # convert note to Hz
@@ -66,53 +66,55 @@ def format(recipe, file_loc:str):
     file_loc = os.path.join('/', *file_loc.split('/')[:-1], file_loc.split('/')[-1][:-4]+'.csv')
     data.to_csv(file_loc, index=False, header=False, sep=',')
 
-def main(recipe:str, TOTAL_TRACK:int, RefOrTrans:str):
-    with open(os.path.join(os.getcwd(), 'recipes', recipe+'.yaml')) as stream:
-        recipe_data = yaml.safe_load(stream)
-        file_name = next(iter(recipe_data['Recipes']))
-        target = recipe_data['Recipes'][file_name]
-        file_name = file_name.replace(' ', '_').lower()
+def main(file_name: str):
+    o_dir = os.path.join(*file_name.split('/')[:-1], 'csv')
+    midi2ref(file_name, o_dir)
+    format('piano', os.path.join(o_dir, file_name.split('/')[-1][:-4]+'.csv'))
+    # with open(os.path.join(os.getcwd(), 'recipes', recipe+'.yaml')) as stream:
+    #     recipe_data = yaml.safe_load(stream)
+    #     file_name = next(iter(recipe_data['Recipes']))
+    #     target = recipe_data['Recipes'][file_name]
+    #     file_name = file_name.replace(' ', '_').lower()
 
-    if RefOrTrans == 'ref':   
-        with open(os.path.join(os.getcwd(), 'recipes', recipe+'.txt'), 'w') as f:
-            logging.info('ref') 
-            for tr in range(1, TOTAL_TRACK+1):
-                with open(os.path.join(os.getcwd(), 'babyslakh_16k', f'Track{tr:05}', 'metadata.yaml')) as stream:
-                    metadata = yaml.safe_load(stream)
-                    InstrumentExist = False
-                    for S in metadata['stems']:
-                        inst = metadata['stems'][S]['program_num']
-                        if inst in target and os.path.exists(os.path.join(os.getcwd(),'babyslakh_16k', f'Track{tr:05}', 'MIDI', S+'.mid')):
-                            InstrumentExist = True
-                            logging.info(f'Find inst {inst} {S} fit target')
-                            path = os.path.join(os.getcwd(),'babyslakh_16k', f'Track{tr:05}', 'MIDI', S+'.mid')
-                            o_dir = os.path.join(os.getcwd(),'babyslakh_16k', f'Track{tr:05}', recipe)
-                            o_file = os.path.join(o_dir, recipe+'.mid')
-                            shutil.copy(path, o_file)
-                            midi2ref(path=o_file, o_dir=o_dir)
+    # if RefOrTrans == 'ref':   
+    #     with open(os.path.join(os.getcwd(), 'recipes', recipe+'.txt'), 'w') as f:
+    #         logging.info('ref') 
+    #         for tr in range(1, TOTAL_TRACK+1):
+    #             with open(os.path.join(os.getcwd(), 'babyslakh_16k', f'Track{tr:05}', 'metadata.yaml')) as stream:
+    #                 metadata = yaml.safe_load(stream)
+    #                 InstrumentExist = False
+    #                 for S in metadata['stems']:
+    #                     inst = metadata['stems'][S]['program_num']
+    #                     if inst in target and os.path.exists(os.path.join(os.getcwd(),'babyslakh_16k', f'Track{tr:05}', 'MIDI', S+'.mid')):
+    #                         InstrumentExist = True
+    #                         logging.info(f'Find inst {inst} {S} fit target')
+    #                         path = os.path.join(os.getcwd(),'babyslakh_16k', f'Track{tr:05}', 'MIDI', S+'.mid')
+    #                         o_dir = os.path.join(os.getcwd(),'babyslakh_16k', f'Track{tr:05}', recipe)
+    #                         o_file = os.path.join(o_dir, recipe+'.mid')
+    #                         shutil.copy(path, o_file)
+    #                         midi2ref(path=o_file, o_dir=o_dir)
                             
-                            # os.rename(os.path.join(o_dir, S+'.csv'), os.path.join(o_dir, recipe+'.csv'))
-                            # delete the first row of the csv file
+    #                         # os.rename(os.path.join(o_dir, S+'.csv'), os.path.join(o_dir, recipe+'.csv'))
+    #                         # delete the first row of the csv file
 
-                            file_loc = os.path.join(os.getcwd(), 'babyslakh_16k', f'Track{tr:05}', recipe,  recipe+'.csv')
-                            format(recipe=recipe, file_loc=file_loc)
+    #                         file_loc = os.path.join(os.getcwd(), 'babyslakh_16k', f'Track{tr:05}', recipe,  recipe+'.csv')
+    #                         format(recipe=recipe, file_loc=file_loc)
 
-                    if not InstrumentExist:
-                        logging.info(f'No instrument fit target')
-                    else:
-                        f.write(str(tr)+'\n')
+    #                 if not InstrumentExist:
+    #                     logging.info(f'No instrument fit target')
+    #                 else:
+    #                     f.write(str(tr)+'\n')
 
 
-    elif RefOrTrans == 'trans':
-        with open(os.path.join(os.getcwd(), 'recipes', recipe+'.txt'), 'r') as f:
-            for tr in range(1, TOTAL_TRACK+1):
-                path = os.path.join(os.getcwd(),'transcribe', f'Track{tr:05}', recipe, file_name+'_basic_pitch.mid')
-                o_dir = os.path.join(os.getcwd(),'transcribe', f'Track{tr:05}', recipe)
-                midi2ref(path=path, o_dir=o_dir)
-                file_loc = os.path.join(os.getcwd(), 'transcribe', f'Track{tr:05}', recipe, file_name+'_basic_pitch.csv')
-                format(recipe=recipe, file_loc=file_loc)
+    # elif RefOrTrans == 'trans':
+    #     with open(os.path.join(os.getcwd(), 'recipes', recipe+'.txt'), 'r') as f:
+    #         for tr in range(1, TOTAL_TRACK+1):
+    #             path = os.path.join(os.getcwd(),'transcribe', f'Track{tr:05}', recipe, file_name+'_basic_pitch.mid')
+    #             o_dir = os.path.join(os.getcwd(),'transcribe', f'Track{tr:05}', recipe)
+    #             midi2ref(path=path, o_dir=o_dir)
+    #             file_loc = os.path.join(os.getcwd(), 'transcribe', f'Track{tr:05}', recipe, file_name+'_basic_pitch.csv')
+    #             format(recipe=recipe, file_loc=file_loc)
              
 if __name__ == '__main__':
-    recipe = sys.argv[1]
-    TOTAL_TRACK = int(sys.argv[2])
-    main(recipe, TOTAL_TRACK, 'ref')
+    file = sys.argv[1]
+    main(file)

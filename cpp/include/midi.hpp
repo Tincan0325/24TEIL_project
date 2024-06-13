@@ -1,3 +1,4 @@
+#pragma once
 #include <fstream>
 #include <iostream>
 #include <array>
@@ -9,6 +10,8 @@
 #include <sstream>
 #include <iomanip>
 #include <cstdint>
+
+class HillClimb;
 
 struct MidiEvent{
 	enum class Type
@@ -47,6 +50,7 @@ struct MidiTrack
 
 class MIDI {
 public:
+	friend class HillClimb;
 	enum EventName : uint8_t
 	{					
 		VoiceNoteOff = 0x80,
@@ -89,8 +93,11 @@ public:
 	const void showAllNote(); 
 	void ConvertEventNote();
 	void ConvertNoteEvent();
-	void write(const std::string& file, std::string& hexString);
+	void write(const std::string& file, std::string& hexString, std::string& hexString2);
 	std::string EventHex(const MidiEvent& event);
+	void EventToMeg();
+	void shiftByPercentage(float p, size_t index);
+	std::vector<std::string> msgs;
 
 protected:
     void ParseFile();
@@ -98,3 +105,12 @@ protected:
 };
 
 bool operator==(const MidiEvent e1, const MidiEvent e2);
+
+class HillClimb{
+public:
+    HillClimb();
+    void read(const std::string &file_name);
+protected:
+    MIDI* file;
+};
+

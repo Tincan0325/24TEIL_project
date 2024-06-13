@@ -5,11 +5,12 @@ struct MidiNote;
 struct MidiTrack;
 
 MIDI::MIDI(const std::string& file_name){
-    this->midi.open(file_name, std::fstream::in | std::ios::binary);
-    if(!this->midi.is_open())
+    midi.open(file_name, std::fstream::in | std::ios::binary);
+    if(!midi.is_open())
         std::cerr << "Midi file open failed." << std::endl;
 
-    this->ParseFile();
+    ParseFile();
+    ConvertEventNote();
 }
 
 
@@ -272,6 +273,7 @@ const void MIDI::showAllEvent(){
     printf("====================\nShow All Events:\n");
     uint32_t maxtick=0;
     for (auto& track: vecTracks){
+        printf("new track\n");
         for (auto& event: track.vecEvents){
             if(event.nDeltaTick > maxtick)
                 maxtick = event.nDeltaTick;
@@ -290,6 +292,7 @@ const void MIDI::showAllNote(){
     printf("====================\nShow All Notes:\n");
     for (auto& track: vecTracks){
         //printf("legth of vecNotes %5d\n", track.vecNotes.size());
+        printf("new track\n");
         for (auto& note: track.vecNotes){
             printf("key%-5d start%-10d duration%-5d\n", note.nKey, note.nStartTime, note.nDuration);
         }
@@ -305,6 +308,7 @@ void MIDI::ConvertEventNote(){
 
     for (auto& track: vecTracks){
         track.vecNotes.clear();
+        tmp.clear();
         for (auto& event: track.vecEvents){
             total_tick += event.nDeltaTick;
             if (event.event==MidiEvent::Type::NoteOn)
@@ -320,54 +324,47 @@ void MIDI::ConvertEventNote(){
                         break;
                     }
                 }
-            }   
+            } 
+            sort(track.vecNotes.begin(), track.vecNotes.end(), [](const MidiNote& a, const MidiNote&b){
+                return a.nStartTime < b.nStartTime;
+            });
         }
     }
     
 }
 
 void MIDI::ConvertNoteEvent(){
-    std::list<MidiNote> tmp;
+
+    std::vector<MidiNote> tmp;
     uint32_t tick=0;
 
     for (auto& track: vecTracks){
         track.vecEvents.clear();
+        tick = 0;
+        tmp.clear();
         for (auto& note: track.vecNotes){
-            printf("tick: %d\n",tick);
-
-            while(!tmp.empty() && tmp.begin()->nStartTime+tmp.begin()->nDuration <= note.nStartTime){
-                auto n = tmp.begin();
-                tmp.pop_front();
-                track.vecEvents.push_back({MidiEvent::Type::NoteOff, n->nKey, 0, n->nStartTime+n->nDuration-tick});
-                tick = n->nStartTime+n->nDuration;
-            }
-            for (auto &t:tmp){
-                printf("key%-5d start%-10d duration%-5d\n", t.nKey, t.nStartTime, t.nDuration);
+            while(!tmp.empty() && ((tmp.back().nStartTime+tmp.back().nDuration) < note.nStartTime)){
+                auto &n = tmp.back();
+                track.vecEvents.push_back({MidiEvent::Type::NoteOff, n.nKey, 0, n.nStartTime+n.nDuration-tick});
+                tick = n.nStartTime+n.nDuration;
+                tmp.pop_back();
             }
 
             track.vecEvents.push_back({MidiEvent::Type::NoteOn, note.nKey, note.nVelocity, note.nStartTime-tick});
-
-            auto it = tmp.begin();
-            if (it == tmp.end() || (note.nStartTime + note.nDuration <= it->nStartTime + it->nDuration)) {
-                tmp.insert(it, note);
-            }
-            else{
-                for (auto next_it = std::next(it); it != tmp.end(); ++it, ++next_it) {
-                    if (note.nStartTime + note.nDuration < next_it->nStartTime + next_it->nDuration) {
-                        tmp.insert(next_it, note);
-                    }
-                }
-            }
-            
             tick = note.nStartTime;
-        }
-        while(!tmp.empty()){
-            auto n = tmp.begin();
-            tmp.pop_front();
-            track.vecEvents.push_back({MidiEvent::Type::NoteOff, n->nKey, 0, n->nStartTime+n->nDuration-tick});
-            tick = n->nStartTime+n->nDuration;
+
+            tmp.push_back(note);
+            sort(tmp.begin(), tmp.end(), [](const MidiNote& a, const MidiNote& b) { 
+                return int(a.nDuration+a.nStartTime) > int(b.nDuration+b.nStartTime); 
+            }); 
         }
 
+        while(!tmp.empty()){
+            auto n = tmp.back();
+            tmp.pop_back();
+            track.vecEvents.push_back({MidiEvent::Type::NoteOff, n.nKey, 0, n.nStartTime+n.nDuration-tick});
+            tick = n.nStartTime+n.nDuration;
+        }
     }
 }
 
@@ -394,17 +391,22 @@ std::vector<unsigned char> hexStringToBytes(const std::string& hex) {
     return bytes;
 }
 
-void MIDI::write(const std::string& file, std::string& hexString){
+void MIDI::write(const std::string& file, std::string& hexString1, std::string& hexString2){
 
-    std::string header = "4D 54 68 64 00 00 00 06 00 01 00 01 00 60 4D 54 72 6B";
+    std::string header = "4D 54 68 64 00 00 00 06 00 01 00 02 00 60";
     std::string end = "00 FF 2F 00";
+    std::string hexString;
+    std::string track = "4D 54 72 6B";
 
+    std::stringstream len1;
+    len1 << std::hex << std::setw(8) << std::setfill('0') << static_cast<int>((hexString1.size()/2+4));
+    hexString1 = track+len1.str()+hexString1+end;
 
-
-    std::stringstream len;
-    len << std::hex << std::setw(8) << std::setfill('0') << static_cast<int>((hexString.size()/2+4));
-    hexString = header+len.str()+hexString+end;
-
+    std::stringstream len2;
+    len2 << std::hex << std::setw(8) << std::setfill('0') << static_cast<int>((hexString2.size()/2+4));
+    hexString2 = track+len2.str()+hexString2+end;
+ 
+    hexString = hexString1+hexString2;
     hexString.erase(remove_if(hexString.begin(), hexString.end(), isspace), hexString.end());
 
     std::vector<unsigned char> binaryData;
@@ -465,11 +467,34 @@ std::string MIDI::EventHex(const MidiEvent& event){
         std::string msg = time+"80"+key+"00";
         return msg;
     }
+    return "-1";
 }
+
+void MIDI::EventToMeg(){
+    std::string s="";
+    for (auto &track: vecTracks){
+        for (auto &event: track.vecEvents){
+            s += EventHex(event);
+        }
+        msgs.push_back(s);
+    }
+}
+
+void MIDI::shiftByPercentage(float p, size_t index){
+    //printf("track%d\n", vecTracks.size());
+    //printf("index%d\n",vecTracks[0].vecEvents[index].nKey);
+}
+
 
 bool operator==(const MidiEvent e1, const MidiEvent e2){
     if (e1.event==e2.event && e1.nKey==e2.nKey && e1.nDeltaTick==e1.nDeltaTick)
         return true;
     else 
         return false;
+}
+
+HillClimb::HillClimb(){}
+
+void HillClimb::read(const std::string &file_name){
+    file = new MIDI(file_name);
 }
