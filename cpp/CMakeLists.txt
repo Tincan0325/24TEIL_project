@@ -7,6 +7,7 @@ project(MIDI)
 
 add_subdirectory(include)
 add_subdirectory(src)
-
+set(CMAKE_BUILD_TYPE Debug)
 add_executable(MIDI main.cpp)
 target_link_libraries(MIDI readmidi)
+target_compile_options(MIDI PUBLIC -g)

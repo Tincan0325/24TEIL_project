@@ -1,5 +1,9 @@
 #include "midi.hpp"
 
+struct MidiEvent;
+struct MidiNote;
+struct MidiTrack;
+
 MIDI::MIDI(const std::string& file_name){
     this->midi.open(file_name, std::fstream::in | std::ios::binary);
     if(!this->midi.is_open())
@@ -114,8 +118,7 @@ void MIDI::ParseFile(){
                 uint8_t nChannel = nStatus & 0x0F;
                 uint8_t nNoteID = midi.get();
                 uint8_t nNoteVelocity = midi.get();
-                struct MidiEvent e = {.event=MidiEvent::Type::NoteOff, .nKey=nNoteVelocity, .nDeltaTick=nStatusTimeDelta, .nVelocity=nNoteVelocity};
-                vecTracks[nChunk].vecEvents.push_back(e);
+                vecTracks[nChunk].vecEvents.push_back({MidiEvent::Type::NoteOff, nNoteID, nNoteVelocity, nStatusTimeDelta});
             }
 
             else if ((nStatus & 0xF0) == EventName::VoiceNoteOn){
@@ -259,4 +262,214 @@ void MIDI::ParseFile(){
         }
     }
 
+}
+
+void MIDI::shift(float percentage, int track, int index){
+    std::cout << vecTracks[track].vecEvents[index].nKey << std::endl;
+}
+
+const void MIDI::showAllEvent(){
+    printf("====================\nShow All Events:\n");
+    uint32_t maxtick=0;
+    for (auto& track: vecTracks){
+        for (auto& event: track.vecEvents){
+            if(event.nDeltaTick > maxtick)
+                maxtick = event.nDeltaTick;
+            if (event.event==MidiEvent::Type::NoteOn)
+                printf("%-10s key%-5d dtick%-10d vel%-5d\n", "NoteOn", event.nKey, event.nDeltaTick, event.nVelocity);
+            else if (event.event==MidiEvent::Type::NoteOff)
+                printf("%-10s key%-5d dtick%-10d vel%-5d\n", "NoteOff", event.nKey, event.nDeltaTick, event.nVelocity);           
+            else if (event.event==MidiEvent::Type::Other)
+                printf("%-10s\n", "Other");
+        }
+    }
+    printf("====================\n");
+} 
+
+const void MIDI::showAllNote(){
+    printf("====================\nShow All Notes:\n");
+    for (auto& track: vecTracks){
+        //printf("legth of vecNotes %5d\n", track.vecNotes.size());
+        for (auto& note: track.vecNotes){
+            printf("key%-5d start%-10d duration%-5d\n", note.nKey, note.nStartTime, note.nDuration);
+        }
+    }
+    printf("====================\n");
+} 
+
+void MIDI::ConvertEventNote(){
+
+    //saving key and absolute time 
+    std::list<std::pair<MidiEvent, uint32_t>> tmp;
+    uint32_t total_tick=0;
+
+    for (auto& track: vecTracks){
+        track.vecNotes.clear();
+        for (auto& event: track.vecEvents){
+            total_tick += event.nDeltaTick;
+            if (event.event==MidiEvent::Type::NoteOn)
+                tmp.push_back(std::make_pair(event, total_tick));
+            else if (event.event==MidiEvent::Type::NoteOff){
+                for (auto& note:tmp){
+                    //printf("%5d %5d\n", event.nKey, note.first.nKey);
+                    if (event.nKey==note.first.nKey){
+                        track.vecNotes.push_back({event.nKey, note.first.nVelocity, note.second, total_tick-note.second});
+                        tmp.remove(note);
+                        //printf("legth of vecNotes %5d\n", track.vecNotes.size());
+                        //printf("found\n");
+                        break;
+                    }
+                }
+            }   
+        }
+    }
+    
+}
+
+void MIDI::ConvertNoteEvent(){
+    std::list<MidiNote> tmp;
+    uint32_t tick=0;
+
+    for (auto& track: vecTracks){
+        track.vecEvents.clear();
+        for (auto& note: track.vecNotes){
+            printf("tick: %d\n",tick);
+
+            while(!tmp.empty() && tmp.begin()->nStartTime+tmp.begin()->nDuration <= note.nStartTime){
+                auto n = tmp.begin();
+                tmp.pop_front();
+                track.vecEvents.push_back({MidiEvent::Type::NoteOff, n->nKey, 0, n->nStartTime+n->nDuration-tick});
+                tick = n->nStartTime+n->nDuration;
+            }
+            for (auto &t:tmp){
+                printf("key%-5d start%-10d duration%-5d\n", t.nKey, t.nStartTime, t.nDuration);
+            }
+
+            track.vecEvents.push_back({MidiEvent::Type::NoteOn, note.nKey, note.nVelocity, note.nStartTime-tick});
+
+            auto it = tmp.begin();
+            if (it == tmp.end() || (note.nStartTime + note.nDuration <= it->nStartTime + it->nDuration)) {
+                tmp.insert(it, note);
+            }
+            else{
+                for (auto next_it = std::next(it); it != tmp.end(); ++it, ++next_it) {
+                    if (note.nStartTime + note.nDuration < next_it->nStartTime + next_it->nDuration) {
+                        tmp.insert(next_it, note);
+                    }
+                }
+            }
+            
+            tick = note.nStartTime;
+        }
+        while(!tmp.empty()){
+            auto n = tmp.begin();
+            tmp.pop_front();
+            track.vecEvents.push_back({MidiEvent::Type::NoteOff, n->nKey, 0, n->nStartTime+n->nDuration-tick});
+            tick = n->nStartTime+n->nDuration;
+        }
+
+    }
+}
+
+unsigned char hexCharToByte(char hex) {
+    if (hex >= '0' && hex <= '9') return hex - '0';
+    if (hex >= 'A' && hex <= 'F') return hex - 'A' + 10;
+    if (hex >= 'a' && hex <= 'f') return hex - 'a' + 10;
+    //printf("hex:%d\n", hex);
+    throw std::invalid_argument("Invalid hex character");
+}
+
+std::vector<unsigned char> hexStringToBytes(const std::string& hex) {
+    std::vector<unsigned char> bytes;
+    size_t len = hex.length();
+    if (len % 2 != 0) {
+        throw std::invalid_argument("Hex string length must be even");
+    }
+
+    for (size_t i = 0; i < len; i += 2) {
+        unsigned char high = hexCharToByte(hex[i]);
+        unsigned char low = hexCharToByte(hex[i + 1]);
+        bytes.push_back((high << 4) | low);
+    }
+    return bytes;
+}
+
+void MIDI::write(const std::string& file, std::string& hexString){
+
+    std::string header = "4D 54 68 64 00 00 00 06 00 01 00 01 00 60 4D 54 72 6B";
+    std::string end = "00 FF 2F 00";
+
+
+
+    std::stringstream len;
+    len << std::hex << std::setw(8) << std::setfill('0') << static_cast<int>((hexString.size()/2+4));
+    hexString = header+len.str()+hexString+end;
+
+    hexString.erase(remove_if(hexString.begin(), hexString.end(), isspace), hexString.end());
+
+    std::vector<unsigned char> binaryData;
+    binaryData = hexStringToBytes(hexString);
+    
+    std::ofstream outFile(file, std::ios::binary);
+    outFile.write(reinterpret_cast<const char*>(binaryData.data()), binaryData.size());
+    outFile.close();
+}
+
+std::string MIDI::EventHex(const MidiEvent& event){
+    auto int8ToHex = [](const uint8_t value) -> std::string {
+        std::stringstream ss;
+        ss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(value);
+        return ss.str();
+    };
+    auto int32ToHex = [](const uint32_t value) -> std::string {
+        std::stringstream ss;
+        ss << std::hex << std::setw(8) << std::setfill('0') << value;
+        return ss.str();
+    };
+    auto timeToHex = [&](uint32_t time) -> std::string {
+        std::list<std::string> tmp;
+
+        uint8_t r = (int)(time & (0x7f));
+        tmp.push_back(int8ToHex(r));
+        time = time >> 7;
+
+        while (time > (uint32_t)127){
+            uint8_t remainder = (int)(time & (0x7f));
+            tmp.push_back(int8ToHex(remainder+128));
+            time = time >> 7;
+            //printf("time: %d\n", time);
+        }
+        
+        uint8_t remainder = (int)(time & (0x7f));
+        if (remainder != 0)
+            tmp.push_back(int8ToHex(remainder+128));
+        
+        std::stringstream ss;
+        while(!tmp.empty()){
+            ss << std::hex << std::setw(2) << std::setfill('0') << tmp.back();
+            tmp.pop_back();
+        }
+        return ss.str();
+    };
+
+    if(event.event == MidiEvent::Type::NoteOn){
+        std::string time = int8ToHex(event.nDeltaTick);
+        std::string key = int8ToHex(event.nKey);
+        std::string velocity = int8ToHex(event.nVelocity);
+        std::string msg = time+"90"+key+velocity;
+        return msg;
+    }
+    else if(event.event == MidiEvent::Type::NoteOff){
+        std::string time = timeToHex(event.nDeltaTick);
+        std::string key = int8ToHex(event.nKey);
+        std::string msg = time+"80"+key+"00";
+        return msg;
+    }
+}
+
+bool operator==(const MidiEvent e1, const MidiEvent e2){
+    if (e1.event==e2.event && e1.nKey==e2.nKey && e1.nDeltaTick==e1.nDeltaTick)
+        return true;
+    else 
+        return false;
 }

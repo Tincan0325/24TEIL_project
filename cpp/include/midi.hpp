@@ -2,6 +2,13 @@
 #include <iostream>
 #include <array>
 #include <vector>
+#include <list>
+#include <utility> 
+#include <string>
+#include <algorithm>
+#include <sstream>
+#include <iomanip>
+#include <cstdint>
 
 struct MidiEvent{
 	enum class Type
@@ -11,9 +18,11 @@ struct MidiEvent{
 		Other
 	} event;
 
-	uint8_t nKey = 0;
-	uint8_t nVelocity = 0;
-	uint32_t nDeltaTick = 0;
+	uint8_t nKey;
+	uint8_t nVelocity;
+	uint32_t nDeltaTick;
+
+	MidiEvent(Type type, uint8_t key=0, uint8_t v=0, uint32_t t=0): event(type), nKey(key), nVelocity(v), nDeltaTick(t){};
 };
 
 struct MidiNote
@@ -22,6 +31,8 @@ struct MidiNote
 	uint8_t nVelocity = 0;
 	uint32_t nStartTime = 0;
 	uint32_t nDuration = 0;
+
+	MidiNote(uint8_t key, uint8_t v=0, uint32_t start=0, uint32_t d=0): nKey(key), nVelocity(v), nStartTime(start), nDuration(d){};
 };
 
 struct MidiTrack
@@ -73,7 +84,17 @@ public:
 	uint32_t m_nTempo = 0;
 	uint32_t m_nBPM = 0;
     
+	void shift(float percentage, int track, int index);
+	const void showAllEvent(); 
+	const void showAllNote(); 
+	void ConvertEventNote();
+	void ConvertNoteEvent();
+	void write(const std::string& file, std::string& hexString);
+	std::string EventHex(const MidiEvent& event);
+
 protected:
     void ParseFile();
     std::ifstream midi;
 };
+
+bool operator==(const MidiEvent e1, const MidiEvent e2);

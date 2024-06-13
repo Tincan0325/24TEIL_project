@@ -6,6 +6,5 @@ nussl/
 transcribe
 separation
 babyslakh_16k.tar.gz
-ddsp_piano
-ddsp
-spdlog
+ddsp-piano/
+
