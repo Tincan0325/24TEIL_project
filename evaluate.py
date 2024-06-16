@@ -6,8 +6,8 @@ import json
 
 # Argument: 1. recipe
 def main(recipe, file_name):
-    ref_loc = os.path.join('/home', 'tincan', 'code', 'midi', 'csv', recipe+'.csv')
-    file_loc = file_name
+    ref_loc = os.path.join('/home', 'tincan', 'code','midi', 'piano.mid')
+    file_loc = os.path.join('/home', 'tincan', 'code','midi' , file_name.split('/')[-1][:-4]+'.csv')
     ref_intervals, ref_pitches = mir_eval.io.load_valued_intervals(ref_loc, delimiter=',')
     est_intervals, est_pitches = mir_eval.io.load_valued_intervals(file_loc, delimiter=',')
     # scores = mir_eval.transcription.evaluate(ref_intervals=ref_intervals, 
@@ -25,10 +25,10 @@ def main(recipe, file_name):
                                             pitch_tolerance=100) 
     # with open("score.json", 'w') as f:
     #     json.dump(scores, f)
-    print(scores)
-    print(str(scores["F-measure"]))
-    with open("../../score.txt", 'w') as f:
-        f.write(str(scores["F-measure"]))
+    # print(str(scores["F-measure"])[:5])
+    
+    with open("score.txt", 'w') as f:
+        f.write(str(scores["F-measure"])[:5])
 
 if __name__ == '__main__':
     file_name = sys.argv[1]

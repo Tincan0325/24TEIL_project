@@ -8,11 +8,13 @@ import shutil
 
 
 def midi2ref(path, o_dir):
+    # cmd = f"python3 -m print('herer')"
     cmd = f"python3 /home/tincan/code/midi_csv/midi_to_csv.py -u {path} -o {o_dir}"
     #print(cmd)
-    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    subprocess.run(cmd, shell=True)
     #print(result.stdout)
     #print(result.stderr)
+    pass
 
 def note2Hz(note: str):
     Base = 1.05946309
@@ -36,7 +38,8 @@ def note2Hz(note: str):
     return Hz
     
 def format(recipe, file_loc):
-    data = pd.read_csv(os.path.join(*file_loc.split('/')))
+    #print(file_loc)
+    data = pd.read_csv(file_loc)
     note = data.iloc[:, 1].to_frame()
     note_ = pd.DataFrame(columns=['Hz'])
     # convert note to Hz
@@ -67,7 +70,8 @@ def format(recipe, file_loc):
     data.to_csv(file_loc, index=False, header=False, sep=',')
 
 def main(file_name: str):
-    o_dir = os.path.join('home', 'tincan', 'code', 'midi', 'csv')
+    o_dir = os.path.join('home', 'tincan', 'code', 'cpp', 'build')
+    # print(o_dir)
     midi2ref(file_name, o_dir)
     format('piano', os.path.join(o_dir, file_name.split('/')[-1][:-4]+'.csv'))
     # with open(os.path.join(os.getcwd(), 'recipes', recipe+'.yaml')) as stream:

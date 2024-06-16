@@ -4,13 +4,19 @@ struct MidiEvent;
 struct MidiNote;
 struct MidiTrack;
 
+MIDI::MIDI(){};
 MIDI::MIDI(const std::string& file_name){
+    // std::cout << "MIDI init\n";
     midi.open(file_name, std::fstream::in | std::ios::binary);
     if(!midi.is_open())
         std::cerr << "Midi file open failed." << std::endl;
 
     ParseFile();
     ConvertEventNote();
+}
+
+void MIDI::copy(MIDI* c){
+    vecTracks = c->vecTracks;
 }
 
 
@@ -392,7 +398,7 @@ std::vector<unsigned char> hexStringToBytes(const std::string& hex) {
     return bytes;
 }
 
-void MIDI::write(const std::string& file, std::string hexString1, std::string hexString2){
+void MIDI::write(const std::string file, std::string hexString1, std::string hexString2){
 
     std::string header = "4D 54 68 64 00 00 00 06 00 01 00 02 00 60";
     std::string foot = "00";
@@ -409,6 +415,7 @@ void MIDI::write(const std::string& file, std::string hexString1, std::string he
     hexString2.erase(remove_if(hexString2.begin(), hexString2.end(), isspace), hexString2.end());
     len2 << std::hex << std::setw(8) << std::setfill('0') << static_cast<int>((hexString2.size()/2+4));
     hexString2 = track+len2.str()+hexString2+end;
+    //hexString = header+hexString1;
 
     hexString = header+hexString1+hexString2;
     hexString.erase(remove_if(hexString.begin(), hexString.end(), isspace), hexString.end());
@@ -429,7 +436,7 @@ std::string MIDI::EventHex(const MidiEvent& event){
     };
     auto int32ToHex = [](const uint32_t value) -> std::string {
         std::stringstream ss;
-        ss << std::hex << std::setw(8) << std::setfill('0') << value;
+        ss << std::hex << std::setw(8) << std::setfill('0') << static_cast<int>(value);
         return ss.str();
     };
     auto timeToHex = [&](uint32_t time) -> std::string {
@@ -459,7 +466,7 @@ std::string MIDI::EventHex(const MidiEvent& event){
     };
 
     if(event.event == MidiEvent::Type::NoteOn){
-        std::string time = int8ToHex(event.nDeltaTick);
+        std::string time = timeToHex(event.nDeltaTick);
         std::string key = int8ToHex(event.nKey);
         std::string velocity = int8ToHex(event.nVelocity);
         std::string msg = time+"90"+key+velocity;
@@ -488,9 +495,10 @@ void MIDI::EventToMeg(){
 }
 
 void MIDI::shiftByPercentage(float p, size_t track, size_t index){
+    // ConvertEventNote();
     std::vector<MidiNote>& m = vecTracks[track].vecNotes;
     int shift = int(m[index].nStartTime) + int(m[index].nDuration * p);
-    m[index].nStartTime = (shift>=0)?(uint32_t)((m[index].nStartTime) + int(m[index].nDuration * p)):0;
+    m[index].nStartTime = (shift>=0)?(uint32_t)((m[index].nStartTime) + int((m[index].nDuration) * p)):0;
     
     sort(m.begin(), m.end(), [](const MidiNote& a, const MidiNote& b) { 
         return int(a.nStartTime) < int(b.nStartTime); 
@@ -505,11 +513,19 @@ bool operator==(const MidiEvent e1, const MidiEvent e2){
         return false;
 }
 
-HillClimb::HillClimb(){}
+HillClimb::HillClimb(): file(nullptr){}
+HillClimb::~HillClimb(){
+    delete file;
+}
 
-void HillClimb::read(const std::string &file_name){
-    if (file != nullptr)
-        delete file; 
+void HillClimb::read(std::string file_name){
+    // if(file!=nullptr){    
+    //     printf("here");
+    //     delete file;
+    //     printf("here");
+
+    //     file = nullptr;
+    // }
     file = new MIDI(file_name);
     //file->showAllEvent();
 }
@@ -520,58 +536,115 @@ void HillClimb::shift(float p, size_t track , size_t note){
 
 void HillClimb::evaluate(const std::string file_name){
     // transfer mid to ref
+    std::string cmd0 = "python3 /home/tincan/code/midi_csv/midi_to_csv.py -u ";
+    cmd0 += HOME+file_name+".mid";
+    cmd0 += " -o "+HOME;
+    system(cmd0.c_str());
+
     std::string cmd = "python3 ";
-    cmd += HOME;
-    cmd += "midi2ref.py ";
-    cmd += HOME+"midi/percentage/"+file_name+".mid";
+    cmd += "/home/tincan/code/midi2ref.py ";
+    cmd += HOME+file_name+".mid";
     //cmd += HOME+"midi/"+file_name+".mid";
     system(cmd.c_str());
     
     // evaluate
     cmd = "python3 ";
-    cmd += HOME;
-    cmd += "evaluate.py ";
-    cmd += HOME+"midi/csv/"+file_name+".csv";
+    cmd += "/home/tincan/code/evaluate.py ";
+    cmd += HOME+file_name+".csv";
+    // printf("cmd %s\n", cmd.c_str());
+
     system(cmd.c_str());
 
 }
+const float EPLISON = 0.01;
 
 void HillClimb::runPercentage(const std::string file_name){
+    // srand(time(0));
+
     read(file_name);
+    file->showAllEvent();
+
+    MIDI best;
     float bestF1 = 0.0;
     file->ConvertEventNote();
+    file->EventToMeg();
     file->showAllNote();
-    for (size_t t=0; t<file->vecTracks.size(); t++){
-        // printf("t: %d\n", t);
-        std::ifstream score("../../scores.txt", std::ifstream::binary);
-        //float bestF1 = 
-        for (size_t n=0; n<file->vecTracks[t].vecNotes.size(); n++){
-            // shift foward
-            std::string _file_name = "shift_forward_"+std::to_string(int(HillClimb::PERCENTAGE*100))+"_"+std::to_string(t)+"_"+std::to_string(n);
-            std::string shift_forward_file = HOME+"midi/percentage/" + _file_name+".mid";
-            // printf("shift_forward_file: %s\n", shift_forward_file.c_str());
-            read(file_name);
-            file->ConvertEventNote();
-            //file->showAllNote();
-            shift(-HillClimb::PERCENTAGE, t, n);
-            //file->showAllEvent();
-            file->EventToMeg();
-            //printf("msg1 %s, msg2 %s\n",  file->msgs[0].c_str(), file->msgs[1].c_str());
-            file->write(shift_forward_file, file->msgs[0], file->msgs[1]);
-            evaluate(_file_name);
 
-            std::ifstream score("../../score.txt") ;
-            float F1_measure;
-            score >> F1_measure;
-            if(F1_measure>bestF1){
-                std::cout << "GetBetter, Climb UP!" << std::endl;
-                read(shift_forward_file); // read shift file back
-            }
-           
+    int ForwardOrBackward;
+    std::string _file_name;
+    std::string shift_file;
+    std::string tmp = HOME+"tmp.mid";
+    int track=0;
+    int note=0;
+    file->write(tmp, file->msgs[0], file->msgs[1]);
+
+    for (int i=0; i<HillClimb::LOOP_MAX; i++) {
+        std::fstream score(HOME+"score.txt");
+        std::ofstream Accscore(HOME+"Accscores.txt");
+
+        if (i%10 == 0) 
+            std::cout << "This is " << i << " loop\n";
+
+        ForwardOrBackward = std::rand()%2;
+
+        track = std::rand()%2;
+        // track = 0;
+
+        if(file->vecTracks[track].vecNotes.size()!=0)
+            note = std::rand()%(file->vecTracks[track].vecNotes.size());
+        else 
+            continue;
+        float p =HillClimb::PERCENTAGE * rand()/RAND_MAX;
+        // if (ForwardOrBackward==0){
+        //     _file_name = "shift_forward_"+std::to_string(int(HillClimb::PERCENTAGE*100))+"_"+std::to_string(track)+"_"+std::to_string(note);
+        // }
+        // else {
+        //     _file_name = "shift_backward_"+std::to_string(int(HillClimb::PERCENTAGE*100))+"_"+std::to_string(track)+"_"+std::to_string(note);
+        // }
+
+        // shift_file = HOME+"midi/percentage/" + _file_name+".mid";
+        // printf("shift_forward_file: %s\n", shift_forward_file.c_str());
+        //read(file_name);
+
+        file->ConvertEventNote();
+        //file->showAllNote();
+        shift(p*((ForwardOrBackward==0)?-1.0:1.0), track, note);
+        // file->showAllEvent();
+        file->EventToMeg();
+        //printf("msg1 %s, msg2 %s\n",  file->msgs[0].c_str(), file->msgs[1].c_str());
+
+        file->write(tmp, file->msgs[0], file->msgs[1]);
+        evaluate("tmp");
+
+        std::string fs;
+
+        std::getline(score, fs);
+        float F1_measure = std::stof(fs);
+        std::cout << "F1 score: " << F1_measure << std::endl;
+        std::cout << note;
+        file->showAllNote();
+
+        if(F1_measure>bestF1+EPLISON){
+            std::cout << "GetBetter, Climb UP! F1: " << fs << std::endl;
+            file->write("./best.mid", file->msgs[0], file->msgs[1]);
+            Accscore << "F1 score: "  << F1_measure << "at loop:" << i <<"\n";
+            bestF1=F1_measure;
+            best.copy(file);
         }
+        else{
+            shift(p*((ForwardOrBackward==0)?1.0:-1.0), track, note);
+        }
+        score.close();
+        Accscore.close();
     }
+    // file->showAllEvent();
+    std::cout << "Best F1 score: " << bestF1 << std::endl;
+
+    best.showAllNote();
+    
 }
 
-const float HillClimb::PERCENTAGE=0.05;
-
+const float HillClimb::PERCENTAGE=0.5;
+const float HillClimb::F1_BOUND=0.85;
+const uint32_t HillClimb::LOOP_MAX=2;
 

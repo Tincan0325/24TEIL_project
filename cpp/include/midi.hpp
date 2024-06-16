@@ -13,8 +13,10 @@
 #include </usr/include/python3.8/Python.h>
 #include </usr/include/jsoncpp/json/json.h>
 #include </usr/include/jsoncpp/json/value.h>
+#include <stdlib.h>
+#include <ctime>
 
-static const std::string HOME="/home/tincan/code/";
+static const std::string HOME="/home/tincan/code/cpp/build/";
 static const std::string TRANSCRIBE_NAME="piano_transcribe";
 
 class HillClimb;
@@ -87,8 +89,9 @@ public:
 		MetaKeySignature = 0x59,
 		MetaSequencerSpecific = 0x7F,
 	};
-
+	MIDI();
     MIDI(const std::string& file_name);
+	void copy(MIDI* c);
     ~MIDI();
 	std::vector<MidiTrack> vecTracks;
 	uint32_t m_nTempo = 0;
@@ -99,7 +102,7 @@ public:
 	const void showAllNote(); 
 	void ConvertEventNote();
 	void ConvertNoteEvent();
-	void write(const std::string& file, std::string hexString, std::string hexString2);
+	void write(const std::string file, std::string hexString, std::string hexString2);
 	std::string EventHex(const MidiEvent& event);
 	void EventToMeg();
 	void shiftByPercentage(float p, size_t track, size_t index);
@@ -115,13 +118,16 @@ bool operator==(const MidiEvent e1, const MidiEvent e2);
 class HillClimb{
 public:
     HillClimb();
-    void read(const std::string &file_name);
+	~HillClimb();
+    void read(const std::string file_name);
 	void runPercentage(const std::string file_name);
 	static const float PERCENTAGE;
+	static const float F1_BOUND;
+	static const uint32_t LOOP_MAX;
 	void evaluate(const std::string file_name);
+	MIDI* file;
 
 protected:
-    MIDI* file;
 	void shift(float p, size_t track , size_t note);
 };
 
